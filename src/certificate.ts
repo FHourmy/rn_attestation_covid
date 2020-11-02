@@ -154,9 +154,11 @@ export async function generatePdf(profile: Profile, reasons: string) {
 	const pdfBytes = await pdfDoc.saveAsBase64();
 
 	await RNFetchBlob.fs.createFile(
-		RNFetchBlob.fs.dirs.DownloadDir + "/" + new Date().getTime() + ".pdf",
+		RNFetchBlob.fs.dirs.DownloadDir +
+			"/attestation_" +
+			new Date().getTime() +
+			".pdf",
 		pdfBytes,
 		"base64",
 	);
-	console.log("done");
 }

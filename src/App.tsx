@@ -1,21 +1,17 @@
 import React from "react";
-import AsyncStorage from "@react-native-async-storage/async-storage";
-import { View, Button } from "react-native";
+import { View, Button, PermissionsAndroid } from "react-native";
 import { generatePdf, Profile } from "./certificate";
 import Data from "./Data";
 import Options from "./Options";
-
-const defaultProfile: Profile = {
-	address: "",
-	birthday: "",
-	datesortie: "",
-	heuresortie: "",
-	firstname: "",
-	lastname: "",
-	placeofbirth: "",
-	city: "",
-	zipcode: "",
-};
+import {
+	defaultProfile,
+	getCreateNow,
+	getProfile,
+	getReasons,
+	storeCreateNow,
+	storeProfile,
+	storeReasons,
+} from "./storage";
 
 const formatNumber = (value: number): string => {
 	if (value < 10) {
@@ -39,75 +35,57 @@ const sortie = (createNow: boolean) => {
 		heuresortie: hours + ":" + minutes,
 	};
 };
-const storeProfile = async (profile: Profile) => {
-	try {
-		await AsyncStorage.setItem("profile", JSON.stringify(profile));
-	} catch (e) {
-		return;
-	}
-};
 
-const getProfile = async (): Promise<Profile> => {
-	try {
-		const profile = await AsyncStorage.getItem("profile");
-		if (profile !== null) {
-			return JSON.parse(profile);
-		}
-		return defaultProfile;
-	} catch (e) {
-		return defaultProfile;
-	}
-};
+const getPermission = async () => {
+	const granted = await PermissionsAndroid.check(
+		PermissionsAndroid.PERMISSIONS.WRITE_EXTERNAL_STORAGE,
+	);
 
-const storeReasons = async (reasons: string) => {
-	try {
-		await AsyncStorage.setItem("reasons", JSON.stringify(reasons));
-	} catch (e) {
-		return;
-	}
-};
-
-const getReasons = async () => {
-	try {
-		const reasons = await AsyncStorage.getItem("reasons");
-		if (reasons !== null) {
-			return JSON.parse(reasons);
-		}
-		return "";
-	} catch (e) {
-		return "";
-	}
-};
-
-const storeCreateNow = async (createNow: boolean) => {
-	try {
-		await AsyncStorage.setItem("createNow", JSON.stringify(createNow));
-	} catch (e) {
-		return;
-	}
-};
-
-const getCreateNow = async () => {
-	try {
-		const createNow = await AsyncStorage.getItem("createNow");
-		if (createNow !== null) {
-			return JSON.parse(createNow);
-		}
-		return true;
-	} catch (e) {
-		return true;
+	if (!granted) {
+		await PermissionsAndroid.request(
+			PermissionsAndroid.PERMISSIONS.WRITE_EXTERNAL_STORAGE,
+			{
+				title: "Save attestations COVID",
+				message: "Autoriser l'application à enregistrer des fichiers",
+				buttonNegative: "Cancel",
+				buttonNeutral: "Ask Me Later",
+				buttonPositive: "OK",
+			},
+		);
 	}
 };
 const App = () => {
 	const [isLoadingData, setIsLoadingData] = React.useState(true);
 	const [statusGenerating, setStatusGeneration] = React.useState<
-		"waiting" | "generating" | "generated"
+		"waiting" | "generating" | "generated" | "failed"
 	>("waiting");
 	const [isEditingData, setIsEditingData] = React.useState(true);
 	const [profile, setProfile] = React.useState<Profile>(defaultProfile);
 	const [reasons, setReasons] = React.useState("");
 	const [createNow, setCreateNow] = React.useState(true);
+	getPermission();
+	const onGenerate = async () => {
+		setStatusGeneration("generating");
 
+		try {
+			generatePdf({ ...profile, ...sortie(createNow) }, reasons);
+			setTimeout(() => {
+				setStatusGeneration("generated");
+			}, 1000);
+
+			setTimeout(() => {
+				setStatusGeneration("waiting");
+			}, 5000);
+		} catch (e) {
+			setTimeout(() => {
+				setStatusGeneration("failed");
+			}, 1000);
+
+			setTimeout(() => {
+				setStatusGeneration("waiting");
+			}, 5000);
+		}
+	};
 	React.useEffect(() => {
 		const getStored = async () => {
 			const profileStored = await getProfile();
@@ -131,13 +109,16 @@ const App = () => {
 	}, []);
 
 	let buttonTitle = "Générer mon attestation";
-	let buttonColor = undefined;
+	let buttonColor;
 	if (statusGenerating === "generating") {
 		buttonTitle = "En cours de génération...";
 		buttonColor = "grey";
 	} else if (statusGenerating === "generated") {
 		buttonTitle = "Généré dans mes téléchargement !";
 		buttonColor = "green";
+	} else if (statusGenerating === "failed") {
+		buttonTitle = "Echec de la génération, vérifier les permission";
+		buttonColor = "red";
 	}
 	if (isLoadingData) {
 		return null;
@@ -182,17 +163,7 @@ const App = () => {
 					title={buttonTitle}
 					color={buttonColor}
 					disabled={statusGenerating === "generating"}
-					onPress={async () => {
-						setStatusGeneration("generating");
-						generatePdf({ ...profile, ...sortie(createNow) }, reasons);
-						setTimeout(() => {
-							setStatusGeneration("generated");
-						}, 1000);
-
-						setTimeout(() => {
-							setStatusGeneration("waiting");
-						}, 5000);
-					}}
+					onPress={onGenerate}
 				/>
 			</View>
 		</View>
