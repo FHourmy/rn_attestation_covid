@@ -178,6 +178,10 @@ android {
 
         }
     }
+
+    aaptOptions {
+        noCompress "txt", "json", "pdf"
+    }
 }
 
 dependencies {
