@@ -131,7 +131,7 @@ const Data = ({
 						/>
 					</View>
 					<View style={styles.container}>
-						<Text style={styles.textStyle}>adresse: </Text>
+						<Text style={styles.textStyle}>Adresse: </Text>
 						<TextInput
 							style={styles.inputStyle}
 							value={address}
@@ -139,7 +139,7 @@ const Data = ({
 						/>
 					</View>
 					<View style={styles.container}>
-						<Text style={styles.textStyle}>code postal: </Text>
+						<Text style={styles.textStyle}>Code postal: </Text>
 						<TextInput
 							style={styles.inputStyle}
 							value={zipcode}
