@@ -1,5 +1,5 @@
 import React from "react";
-import { View, Button, PermissionsAndroid, Image } from "react-native";
+import { View, Button, PermissionsAndroid, ViewStyle } from "react-native";
 import { generatePdf, Profile } from "./certificate";
 import Data from "./Data";
 import Options from "./Options";
@@ -14,6 +14,21 @@ import {
 	storeReasons,
 } from "./storage";
 
+const styles = {
+	container: {
+		display: "flex",
+		flex: 1,
+		backgroundColor: colors.background,
+	} as ViewStyle,
+	editButtonContainer: {
+		marginBottom: 10,
+		marginTop: 5,
+		marginRight: "5%",
+		alignItems: "flex-end",
+	} as ViewStyle,
+	editButton: { flexWrap: "wrap" } as ViewStyle,
+	generateButton: { marginVertical: 10 } as ViewStyle,
+};
 const formatNumber = (value: number): string => {
 	if (value < 10) {
 		return "0" + value;
@@ -126,12 +141,7 @@ const App = () => {
 	}
 	if (isEditingData) {
 		return (
-			<View
-				style={{
-					display: "flex",
-					flex: 1,
-					backgroundColor: colors.background,
-				}}>
+			<View style={styles.container}>
 				<Data
 					onClose={async (newProfile) => {
 						setProfile(newProfile);
@@ -145,16 +155,9 @@ const App = () => {
 	}
 
 	return (
-		<View
-			style={{ display: "flex", flex: 1, backgroundColor: colors.background }}>
-			<View
-				style={{
-					marginBottom: 10,
-					marginTop: 5,
-					marginRight: "5%",
-					alignItems: "flex-end",
-				}}>
-				<View style={{ flexWrap: "wrap" }}>
+		<View style={styles.container}>
+			<View style={styles.editButtonContainer}>
+				<View style={styles.editButton}>
 					<Button
 						title={"Editer mes données"}
 						onPress={() => {
@@ -176,7 +179,7 @@ const App = () => {
 				}}
 				reasons={reasons}
 			/>
-			<View style={{ marginVertical: 10 }}>
+			<View style={styles.generateButton}>
 				<Button
 					title={buttonTitle}
 					color={buttonColor}

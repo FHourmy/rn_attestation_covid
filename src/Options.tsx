@@ -1,8 +1,26 @@
 import React from "react";
-import { Button, ScrollView, View } from "react-native";
+import { Button, View, ViewStyle } from "react-native";
 import { ys } from "./certificate";
 import colors from "./colors";
 
+const styles = {
+	container: { flex: 1 },
+	buttonsContainer: {
+		flex: 0.8,
+		flexDirection: "row",
+		flexWrap: "wrap",
+	} as ViewStyle,
+	buttonContainer: {
+		width: "40%",
+		marginHorizontal: "5%",
+		marginVertical: 10,
+	} as ViewStyle,
+	timeButtonContainer: {
+		flexDirection: "row",
+		justifyContent: "space-evenly",
+		marginTop: 10,
+	} as ViewStyle,
+};
 const reasonsArray = Object.keys(ys);
 
 const Options = ({
@@ -17,21 +35,10 @@ const Options = ({
 	onChangeCreateNow: (createNow: boolean) => void;
 }) => {
 	return (
-		<View style={{ flex: 1 }}>
-			<View
-				style={{
-					flex: 0.8,
-					flexDirection: "row",
-					flexWrap: "wrap",
-				}}>
+		<View style={styles.container}>
+			<View style={styles.buttonsContainer}>
 				{reasonsArray.map((reason) => (
-					<View
-						key={reason}
-						style={{
-							width: "40%",
-							marginHorizontal: "5%",
-							marginVertical: 10,
-						}}>
+					<View key={reason} style={styles.buttonContainer}>
 						<Button
 							title={reason}
 							color={reasons.includes(reason) ? colors.second : colors.disabled}
@@ -46,12 +53,7 @@ const Options = ({
 					</View>
 				))}
 			</View>
-			<View
-				style={{
-					flexDirection: "row",
-					justifyContent: "space-evenly",
-					marginTop: 10,
-				}}>
+			<View style={styles.timeButtonContainer}>
 				<Button
 					title={"créer il y a 30 minute"}
 					color={createNow ? colors.disabled : colors.second}

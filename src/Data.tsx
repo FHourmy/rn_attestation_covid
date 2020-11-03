@@ -45,6 +45,14 @@ const styles = {
 		justifyContent: "space-evenly",
 		marginTop: 10,
 	} as ViewStyle,
+	titleContainer: {
+		alignItems: "center",
+	} as ViewStyle,
+	title: {
+		fontSize: 20,
+		fontWeight: "bold",
+	} as ViewStyle,
+	errorText: { color: colors.error, textAlign: "center" } as ViewStyle,
 };
 
 const parseBirthDay = (previousValue: string, value: string) => {
@@ -83,14 +91,8 @@ const Data = ({
 		<View style={styles.view}>
 			<ScrollView>
 				<KeyboardAvoidingView enabled>
-					<View style={{ alignItems: "center" }}>
-						<Text
-							style={{
-								fontSize: 20,
-								fontWeight: "bold",
-							}}>
-							Données personelles
-						</Text>
+					<View style={styles.titleContainer}>
+						<Text style={styles.title}>Données personelles</Text>
 					</View>
 
 					<View style={styles.container}>
@@ -207,7 +209,7 @@ const Data = ({
 					placeofbirth,
 					zipcode,
 				}) && (
-					<Text style={{ color: colors.error, textAlign: "center" }}>
+					<Text style={styles.errorText}>
 						Pofil incomplet (vérifier le format de la date si tous les champs
 						sont remplies)
 					</Text>
