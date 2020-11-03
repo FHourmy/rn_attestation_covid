@@ -9,6 +9,7 @@ import {
 	ScrollView,
 } from "react-native";
 import { Profile } from "./certificate";
+import colors from "./colors";
 
 export const checkProfile = (profile: Profile) => {
 	if (
@@ -32,8 +33,13 @@ const styles = {
 	container: {
 		marginVertical: 5,
 	} as ViewStyle,
-	textStyle: { fontSize: 18 },
-	inputStyle: { height: 40, borderColor: "gray", borderWidth: 1 },
+	textStyle: { fontSize: 16 },
+	inputStyle: {
+		height: 40,
+		borderColor: colors.border,
+		borderWidth: 1,
+		borderRadius: 3,
+	},
 	buttonView: {
 		flexDirection: "row",
 		justifyContent: "space-evenly",
@@ -77,6 +83,16 @@ const Data = ({
 		<View style={styles.view}>
 			<ScrollView>
 				<KeyboardAvoidingView enabled>
+					<View style={{ alignItems: "center" }}>
+						<Text
+							style={{
+								fontSize: 20,
+								fontWeight: "bold",
+							}}>
+							Données personelles
+						</Text>
+					</View>
+
 					<View style={styles.container}>
 						<Text style={styles.textStyle}>Prénom: </Text>
 						<TextInput
@@ -141,6 +157,7 @@ const Data = ({
 				<View style={styles.buttonView}>
 					<Button
 						title={"Annuler"}
+						color={colors.base}
 						onPress={() => {
 							onClose(profile);
 						}}
@@ -153,6 +170,7 @@ const Data = ({
 
 					<Button
 						title={"Valider"}
+						color={colors.base}
 						disabled={
 							!checkProfile({
 								...profile,
@@ -189,7 +207,7 @@ const Data = ({
 					placeofbirth,
 					zipcode,
 				}) && (
-					<Text style={{ color: "red", textAlign: "center" }}>
+					<Text style={{ color: colors.error, textAlign: "center" }}>
 						Pofil incomplet (vérifier le format de la date si tous les champs
 						sont remplies)
 					</Text>

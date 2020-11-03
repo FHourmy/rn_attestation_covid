@@ -1,8 +1,9 @@
 import React from "react";
-import { View, Button, PermissionsAndroid } from "react-native";
+import { View, Button, PermissionsAndroid, Image } from "react-native";
 import { generatePdf, Profile } from "./certificate";
 import Data from "./Data";
 import Options from "./Options";
+import colors from "./colors";
 import {
 	defaultProfile,
 	getCreateNow,
@@ -109,42 +110,59 @@ const App = () => {
 	}, []);
 
 	let buttonTitle = "Générer mon attestation";
-	let buttonColor;
+	let buttonColor = colors.base;
 	if (statusGenerating === "generating") {
 		buttonTitle = "En cours de génération...";
-		buttonColor = "grey";
+		buttonColor = colors.disabled;
 	} else if (statusGenerating === "generated") {
 		buttonTitle = "Généré dans mes téléchargement !";
-		buttonColor = "green";
+		buttonColor = colors.ok;
 	} else if (statusGenerating === "failed") {
 		buttonTitle = "Echec de la génération, vérifier les permission";
-		buttonColor = "red";
+		buttonColor = colors.error;
 	}
 	if (isLoadingData) {
 		return null;
 	}
 	if (isEditingData) {
 		return (
-			<Data
-				onClose={async (newProfile) => {
-					setProfile(newProfile);
-					await storeProfile(newProfile);
-					setIsEditingData(false);
-				}}
-				profile={profile}
-			/>
+			<View
+				style={{
+					display: "flex",
+					flex: 1,
+					backgroundColor: colors.background,
+				}}>
+				<Data
+					onClose={async (newProfile) => {
+						setProfile(newProfile);
+						await storeProfile(newProfile);
+						setIsEditingData(false);
+					}}
+					profile={profile}
+				/>
+			</View>
 		);
 	}
 
 	return (
-		<View style={{ display: "flex", flex: 1 }}>
-			<View style={{ marginBottom: 10 }}>
-				<Button
-					title={"Editer mes données"}
-					onPress={() => {
-						setIsEditingData(true);
-					}}
-				/>
+		<View
+			style={{ display: "flex", flex: 1, backgroundColor: colors.background }}>
+			<View
+				style={{
+					marginBottom: 10,
+					marginTop: 5,
+					marginRight: "5%",
+					alignItems: "flex-end",
+				}}>
+				<View style={{ flexWrap: "wrap" }}>
+					<Button
+						title={"Editer mes données"}
+						onPress={() => {
+							setIsEditingData(true);
+						}}
+						color={colors.base}
+					/>
+				</View>
 			</View>
 			<Options
 				createNow={createNow}

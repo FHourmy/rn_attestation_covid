@@ -1,6 +1,7 @@
 import React from "react";
 import { Button, ScrollView, View } from "react-native";
 import { ys } from "./certificate";
+import colors from "./colors";
 
 const reasonsArray = Object.keys(ys);
 
@@ -33,7 +34,7 @@ const Options = ({
 						}}>
 						<Button
 							title={reason}
-							color={reasons.includes(reason) ? "green" : "grey"}
+							color={reasons.includes(reason) ? colors.second : colors.disabled}
 							onPress={() => {
 								if (reasons.includes(reason)) {
 									onChangeReasons(reasons.replace(reason, "").trim());
@@ -53,14 +54,14 @@ const Options = ({
 				}}>
 				<Button
 					title={"créer il y a 30 minute"}
-					color={createNow ? "grey" : "green"}
+					color={createNow ? colors.disabled : colors.second}
 					onPress={() => {
 						onChangeCreateNow(false);
 					}}
 				/>
 				<Button
 					title={"créer maintenant"}
-					color={createNow ? "green" : "grey"}
+					color={createNow ? colors.second : colors.disabled}
 					onPress={() => {
 						onChangeCreateNow(true);
 					}}
