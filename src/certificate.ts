@@ -16,6 +16,7 @@ export interface Profile {
 const generateQR = async (text: any) => {
 	try {
 		// return QRCode.toString(text, { errorCorrectionLevel: "M" });
+		console.log("*************", text);
 		return QRCode.toString(text, {
 			errorCorrectionLevel: "M",
 			type: "svg",
@@ -56,12 +57,6 @@ export const ys: any = {
 };
 
 export async function generatePdf(profile: Profile, reasons: string): string {
-	const creationInstant = new Date();
-	const creationDate = creationInstant.toLocaleDateString("fr-FR");
-	const creationHour = creationInstant
-		.toLocaleTimeString("fr-FR", { hour: "2-digit", minute: "2-digit" })
-		.replace(":", "h");
-
 	const {
 		lastname,
 		firstname,
@@ -75,7 +70,7 @@ export async function generatePdf(profile: Profile, reasons: string): string {
 	} = profile;
 
 	const data = [
-		`Cree le: ${creationDate} a ${creationHour}`,
+		`Cree le: ${datesortie} a ${heuresortie}`,
 		`Nom: ${lastname}`,
 		`Prenom: ${firstname}`,
 		`Naissance: ${birthday} a ${placeofbirth}`,
@@ -83,7 +78,7 @@ export async function generatePdf(profile: Profile, reasons: string): string {
 		`Sortie: ${datesortie} a ${heuresortie}`,
 		`Motifs: ${reasons.replace(/ /g, ", ")}`,
 	].join(";\n ");
-
+	console.log(data);
 	const myPdf = await RNFetchBlob.fs.readFile(
 		RNFetchBlob.fs.asset("certificate.pdf"),
 		"base64",
