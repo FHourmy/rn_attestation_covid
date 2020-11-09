@@ -55,7 +55,7 @@ export const ys: any = {
 	enfants: 211,
 };
 
-export async function generatePdf(profile: Profile, reasons: string) {
+export async function generatePdf(profile: Profile, reasons: string): string {
 	const creationInstant = new Date();
 	const creationDate = creationInstant.toLocaleDateString("fr-FR");
 	const creationHour = creationInstant
@@ -153,12 +153,11 @@ export async function generatePdf(profile: Profile, reasons: string) {
 
 	const pdfBytes = await pdfDoc.saveAsBase64();
 
-	await RNFetchBlob.fs.createFile(
+	const path =
 		RNFetchBlob.fs.dirs.DownloadDir +
-			"/attestation_" +
-			new Date().getTime() +
-			".pdf",
-		pdfBytes,
-		"base64",
-	);
+		"/attestation_" +
+		new Date().getTime() +
+		".pdf";
+	await RNFetchBlob.fs.createFile(path, pdfBytes, "base64");
+	return path;
 }

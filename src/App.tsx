@@ -1,19 +1,27 @@
 import React from "react";
-import { View, Button, PermissionsAndroid, ViewStyle } from "react-native";
+import {
+	View,
+	Button,
+	PermissionsAndroid,
+	ViewStyle,
+	TouchableOpacity,
+	Text,
+} from "react-native";
+import FileViewer from "react-native-file-viewer";
 import { generatePdf, Profile } from "./certificate";
 import Data from "./Data";
 import Options from "./Options";
 import colors from "./colors";
 import {
 	defaultProfile,
-	getCreateNow,
+	getLastAttestation,
 	getProfile,
 	getReasons,
-	storeCreateNow,
+	storeLastAttestation,
 	storeProfile,
 	storeReasons,
 } from "./storage";
-
+import { formatDateToString } from "./utils";
 const styles = {
 	container: {
 		display: "flex",
@@ -27,29 +35,22 @@ const styles = {
 		alignItems: "flex-end",
 	} as ViewStyle,
 	editButton: { flexWrap: "wrap" } as ViewStyle,
-	generateButton: { marginVertical: 10 } as ViewStyle,
-};
-const formatNumber = (value: number): string => {
-	if (value < 10) {
-		return "0" + value;
-	}
-	return "" + value;
-};
-const sortie = (createNow: boolean) => {
-	const now = new Date();
-	if (!createNow) {
-		now.setTime(now.getTime() - 1000 * 60 * 30);
-	}
-	const hours = formatNumber(now.getHours());
-	const minutes = formatNumber(now.getMinutes());
-	const day = formatNumber(now.getDate());
-	const month = formatNumber(now.getMonth() + 1);
-	const year = formatNumber(now.getFullYear());
-
-	return {
-		datesortie: day + "/" + month + "/" + year,
-		heuresortie: hours + ":" + minutes,
-	};
+	bottomButtons: {
+		marginVertical: 10,
+		flexDirection: "row",
+		justifyContent: "space-evenly",
+	} as ViewStyle,
+	bottomButton: {
+		marginHorizontal: "2%",
+		flex: 1,
+		flexWrap: "nowrap",
+	} as ViewStyle,
+	bottomTouchableOpacity: {
+		padding: 10,
+		elevation: 4,
+		borderRadius: 2,
+		justifyContent: "center",
+	} as ViewStyle,
 };
 
 const getPermission = async () => {
@@ -78,13 +79,19 @@ const App = () => {
 	const [isEditingData, setIsEditingData] = React.useState(true);
 	const [profile, setProfile] = React.useState<Profile>(defaultProfile);
 	const [reasons, setReasons] = React.useState("");
-	const [createNow, setCreateNow] = React.useState(true);
+	const [creationDate, setCreationDate] = React.useState(new Date());
+	const [lastAttestion, setLastAttestion] = React.useState("");
 	getPermission();
 	const onGenerate = async () => {
 		setStatusGeneration("generating");
 
 		try {
-			generatePdf({ ...profile, ...sortie(createNow) }, reasons);
+			const path = await generatePdf(
+				{ ...profile, ...formatDateToString(creationDate) },
+				reasons,
+			);
+			storeLastAttestation(path);
+			setLastAttestion(path);
 			setTimeout(() => {
 				setStatusGeneration("generated");
 			}, 1000);
@@ -107,7 +114,7 @@ const App = () => {
 			const profileStored = await getProfile();
 			setProfile(profileStored);
 			setReasons(await getReasons());
-			setCreateNow(await getCreateNow());
+			setLastAttestion(await getLastAttestation());
 			if (
 				profileStored.address &&
 				profileStored.birthday &&
@@ -125,16 +132,21 @@ const App = () => {
 	}, []);
 
 	let buttonTitle = "Générer mon attestation";
-	let buttonColor = colors.base;
+	let buttonGenerationColor = colors.base;
+	let buttonlastAttestionColor = colors.base;
 	if (statusGenerating === "generating") {
 		buttonTitle = "En cours de génération...";
-		buttonColor = colors.disabled;
+		buttonGenerationColor = colors.disabled;
+		buttonlastAttestionColor = colors.disabled;
 	} else if (statusGenerating === "generated") {
 		buttonTitle = "Généré dans mes téléchargement !";
-		buttonColor = colors.ok;
+		buttonGenerationColor = colors.ok;
 	} else if (statusGenerating === "failed") {
 		buttonTitle = "Echec de la génération, vérifier les permission";
-		buttonColor = colors.error;
+		buttonGenerationColor = colors.error;
+	}
+	if (!lastAttestion) {
+		buttonlastAttestionColor = colors.disabled;
 	}
 	if (isLoadingData) {
 		return null;
@@ -168,24 +180,51 @@ const App = () => {
 				</View>
 			</View>
 			<Options
-				createNow={createNow}
+				creationDate={creationDate}
 				onChangeReasons={(r) => {
 					setReasons(r);
 					storeReasons(r);
 				}}
-				onChangeCreateNow={(c) => {
-					setCreateNow(c);
-					storeCreateNow(c);
+				onChangeCreationDate={(d) => {
+					setCreationDate(d);
 				}}
 				reasons={reasons}
 			/>
-			<View style={styles.generateButton}>
-				<Button
-					title={buttonTitle}
-					color={buttonColor}
-					disabled={statusGenerating === "generating"}
-					onPress={onGenerate}
-				/>
+			<View style={styles.bottomButtons}>
+				<View style={styles.bottomButton}>
+					<TouchableOpacity
+						style={{
+							...styles.bottomTouchableOpacity,
+							backgroundColor: buttonlastAttestionColor,
+						}}
+						disabled={statusGenerating === "generating" || !lastAttestion}
+						onPress={() => {
+							FileViewer.open(lastAttestion, { showOpenWithDialog: true });
+						}}>
+						<Text style={{ color: "white", textAlign: "center" }}>
+							{"ouvrir la derniere attestation".toUpperCase()}
+						</Text>
+					</TouchableOpacity>
+				</View>
+				<View style={styles.bottomButton}>
+					<TouchableOpacity
+						style={{
+							...styles.bottomTouchableOpacity,
+							backgroundColor: buttonGenerationColor,
+							flex: 1,
+						}}
+						disabled={statusGenerating === "generating"}
+						onPress={onGenerate}>
+						<Text
+							style={{
+								color: "white",
+								textAlign: "center",
+								justifyContent: "center",
+							}}>
+							{buttonTitle.toUpperCase()}
+						</Text>
+					</TouchableOpacity>
+				</View>
 			</View>
 		</View>
 	);

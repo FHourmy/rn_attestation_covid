@@ -2,38 +2,23 @@ import React from "react";
 import { Button, View, ViewStyle } from "react-native";
 import { ys } from "./certificate";
 import colors from "./colors";
+import DateTimePicker from "@react-native-community/datetimepicker";
+import { formatDateToString } from "./utils";
 
-const styles = {
-	container: { flex: 1 },
-	buttonsContainer: {
-		flex: 0.8,
-		flexDirection: "row",
-		flexWrap: "wrap",
-	} as ViewStyle,
-	buttonContainer: {
-		width: "40%",
-		marginHorizontal: "5%",
-		marginVertical: 10,
-	} as ViewStyle,
-	timeButtonContainer: {
-		flexDirection: "row",
-		justifyContent: "space-evenly",
-		marginTop: 10,
-	} as ViewStyle,
-};
 const reasonsArray = Object.keys(ys);
 
 const Options = ({
 	reasons,
 	onChangeReasons,
-	createNow,
-	onChangeCreateNow,
+	creationDate,
+	onChangeCreationDate,
 }: {
 	reasons: string;
 	onChangeReasons: (reasons: string) => void;
-	createNow: boolean;
-	onChangeCreateNow: (createNow: boolean) => void;
+	creationDate: Date;
+	onChangeCreationDate: (creationDate: Date) => void;
 }) => {
+	const [showPicker, setShowPicker] = React.useState(false);
 	return (
 		<View style={styles.container}>
 			<View style={styles.buttonsContainer}>
@@ -55,22 +40,46 @@ const Options = ({
 			</View>
 			<View style={styles.timeButtonContainer}>
 				<Button
-					title={"créer il y a 30 minute"}
-					color={createNow ? colors.disabled : colors.second}
+					title={`Créer à : ${formatDateToString(creationDate).heuresortie}`}
+					color={colors.second}
 					onPress={() => {
-						onChangeCreateNow(false);
+						setShowPicker(true);
 					}}
 				/>
-				<Button
-					title={"créer maintenant"}
-					color={createNow ? colors.second : colors.disabled}
-					onPress={() => {
-						onChangeCreateNow(true);
-					}}
-				/>
+				{showPicker && (
+					<DateTimePicker
+						testID="dateTimePicker"
+						value={creationDate}
+						mode={"time"}
+						display="spinner"
+						onChange={(e, date) => {
+							setShowPicker(false);
+							onChangeCreationDate(date || creationDate);
+						}}
+					/>
+				)}
 			</View>
 		</View>
 	);
+};
+
+const styles = {
+	container: { flex: 1 },
+	buttonsContainer: {
+		flex: 0.8,
+		flexDirection: "row",
+		flexWrap: "wrap",
+	} as ViewStyle,
+	buttonContainer: {
+		width: "40%",
+		marginHorizontal: "5%",
+		marginVertical: 10,
+	} as ViewStyle,
+	timeButtonContainer: {
+		flexDirection: "row",
+		justifyContent: "space-evenly",
+		marginTop: 10,
+	} as ViewStyle,
 };
 
 export default Options;

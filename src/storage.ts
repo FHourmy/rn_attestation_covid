@@ -53,22 +53,25 @@ export const getReasons = async () => {
 	}
 };
 
-export const storeCreateNow = async (createNow: boolean) => {
+export const storeLastAttestation = async (pathLastAttestion: string) => {
 	try {
-		await AsyncStorage.setItem("createNow", JSON.stringify(createNow));
+		await AsyncStorage.setItem(
+			"lastAttestion",
+			JSON.stringify(pathLastAttestion),
+		);
 	} catch (e) {
 		return;
 	}
 };
 
-export const getCreateNow = async () => {
+export const getLastAttestation = async (): Promise<string> => {
 	try {
-		const createNow = await AsyncStorage.getItem("createNow");
+		const createNow = await AsyncStorage.getItem("lastAttestion");
 		if (createNow !== null) {
 			return JSON.parse(createNow);
 		}
-		return true;
+		return "";
 	} catch (e) {
-		return true;
+		return "";
 	}
 };
